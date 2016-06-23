@@ -20,7 +20,7 @@ public class ManagerURL {
        try(Connection conn = new ConnectionPool().getConnection()){
            new UrlDAO(conn).createTableUrl();
        } catch (SQLException ex) {
-            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "Erro createTable Manager", ex);
         }
    }
            
@@ -28,7 +28,7 @@ public class ManagerURL {
        try(Connection conn = new ConnectionPool().getConnection()){
            new UrlDAO(conn).createDataBase();
        } catch (SQLException ex) {
-            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "Erro createDataBase Manager", ex);
         }
    } 
    
@@ -37,7 +37,7 @@ public class ManagerURL {
             return new UrlDAO(conn).save(url);    
        } catch (SQLException ex) {
             Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, 
-                    "Erro ao salvar Url no banco.", ex);
+                    "Erro save URL Manager.", ex);
         }
        return false;
     }
@@ -63,7 +63,7 @@ public class ManagerURL {
         try(Connection conn = new ConnectionPool().getConnection()){
             return new UrlDAO(conn).getId(url);
         } catch (SQLException ex) {
-                Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ getId)", ex);
+                Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ getId()", ex);
             }
         return -1;
     }
@@ -72,7 +72,7 @@ public class ManagerURL {
         try(Connection conn = new ConnectionPool().getConnection()){
             if(new UrlDAO(conn).ifUrlExist(url)) return true;
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	 Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ ifExist", ex);
         }
         return false;
     }
@@ -81,7 +81,7 @@ public class ManagerURL {
         try(Connection conn = new ConnectionPool().getConnection()){
             new UrlDAO(conn).atualizarShortUrl(url);
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	 Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ atualizarShorUrl", ex);
         }
     }
     
@@ -89,7 +89,7 @@ public class ManagerURL {
         try(Connection conn = new ConnectionPool().getConnection()){
             return new UrlDAO(conn).getList();
         } catch (SQLException ex) {
-            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "Erro: getList()", ex);
         }
         
         return null;
@@ -99,7 +99,7 @@ public class ManagerURL {
         try(Connection conn = new ConnectionPool().getConnection()){
             return new UrlDAO(conn).getTop10Urls();
         } catch (SQLException ex) {
-            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO: getTop10Urls()", ex);
         }
         
         return null;        
@@ -109,7 +109,7 @@ public class ManagerURL {
     	try(Connection conn = new ConnectionPool().getConnection()){
     		return new UrlDAO(conn).deleteUrl(id);
     	} catch (SQLException e) {
-			e.printStackTrace();
+    		 Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ deleteUrl", e);
 		}
     	return false;
     }
@@ -118,23 +118,18 @@ public class ManagerURL {
     	try(Connection conn = new ConnectionPool().getConnection()){
     		return new UrlDAO(conn).getUrl(longUrl);
     	} catch (SQLException e) {
-			e.printStackTrace();
+    		 Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ getUrk(String longUrl)", e);
 		}
     	return null;
     }
    
-    
-    
     public Stats gerarStats(){
-    	System.out.println("dentro do MnagerURl");
     	Stats stats = null;
     	try(Connection conn = new ConnectionPool().getConnection()){
     		stats =  new UrlDAO(conn).gerarStats();
-    		
     	} catch (SQLException e) {
-			e.printStackTrace();
+    		 Logger.getLogger(ManagerURL.class.getName()).log(Level.SEVERE, "ERRO:/ gerarStats()", e);
 		}
     	return stats; 
-    	
     }
 }
