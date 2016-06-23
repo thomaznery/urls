@@ -11,7 +11,7 @@ import br.com.urls.modelos.Stats;
 import br.com.urls.modelos.URL;
 import br.com.urls.util.App;
 
-@Path("/stats")
+@Path("stats")
 public class StatsResource {
 	
 	@GET
@@ -27,6 +27,8 @@ public class StatsResource {
 		
 	}
 	
+	//OK
+	//curl -v http://localhost:8080/stats/1
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)

@@ -22,7 +22,8 @@ import br.com.urls.util.App;
 @Path("users")
 public class UserResource {
 	int idUser = 0;
-
+	//OK
+	//curl -v http://localhost:8080/users/1
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -36,8 +37,8 @@ public class UserResource {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	//funcional
-	//recebe um post {"nome" : "xxxxxxx"} e cria um novo usuario ou retorna Conflict em caso de repetição
+	//OK
+
 	public Response addUser(String content){
 		Usuario user = new Gson().fromJson(content, Usuario.class);
 		if(App.managerUser.save(user)){
@@ -49,7 +50,7 @@ public class UserResource {
 		}
 	}
 	
-	//funcionando 
+	//OK
 	// curl -v -H "Content-Type:application/json" -d "{ 'url' : 'http://grandeurlasjsodjsjfdsfsfu' }"  http://localhost:8080/users/1/urls;
 	@Path("{id}/urls")
 	@POST
@@ -66,8 +67,8 @@ public class UserResource {
 		
 	}
 	
-	//funcionando
-////curl -v -X "DELETE" http://localhost:8080/users/id
+	//OK
+	//curl -v -X "DELETE" http://localhost:8080/users/id
 	@Path("{id}")
 	@DELETE
 	public Response deleteUser(@PathParam("id")int id){
