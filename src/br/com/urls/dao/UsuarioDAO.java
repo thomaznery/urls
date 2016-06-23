@@ -154,12 +154,14 @@ public class UsuarioDAO {
 		String query = "select * from urls where user = ?";
 		try(PreparedStatement stmt = connection.prepareStatement(query)){
 			stmt.setInt(1, idUsuario);
-			stmt.execute();
+			stmt.executeQuery();
 			try(ResultSet rs = stmt.getResultSet()){
 				while(rs.next()){
+					 System.out.println("...");
 					somaHits += rs.getInt(2);
 					urlCount++;
 				}
+				return new Stats(somaHits,urlCount,list);
 			}
 			
 			
@@ -167,6 +169,6 @@ public class UsuarioDAO {
 			e.printStackTrace();
 		}
 		
-		return new Stats(somaHits,urlCount,list);
+		return null;
 	}
 }
