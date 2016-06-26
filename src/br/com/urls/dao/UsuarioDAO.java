@@ -32,7 +32,7 @@ public class UsuarioDAO {
 		try(PreparedStatement stmt = connection.prepareStatement(query)){
 			stmt.execute();			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no createTable() usuarioDAO", e);
 		}
 		
 	}
@@ -46,7 +46,7 @@ public class UsuarioDAO {
 			stmt.execute();
 			return true;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no save(Usuario u) usuarioDAO", e);
 		}
 	}
 		return false;
@@ -57,18 +57,15 @@ public class UsuarioDAO {
 		try(PreparedStatement stmt = connection.prepareStatement(query)){
 			stmt.setInt(1,id);
 			stmt.execute();
-			
 			try(ResultSet rs = stmt.getResultSet()){
 				while(rs.next()){
-					
 					String nome = rs.getString(2);
-					return new Usuario(id, nome);
-					
+					if(!(nome == null))return new Usuario(id, nome);
 				}
 			}
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getUsuario(int id) usuarioDAO", e);
 		}
 		return null;
 	}
@@ -84,7 +81,7 @@ public class UsuarioDAO {
 				
 			}
 		}catch (SQLException e) {
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getId(Stirng nome) usuarioDAO", e);
 		}
 		return -1;
 	}
@@ -102,8 +99,7 @@ public class UsuarioDAO {
 				}
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no if UserExist usuarioDAO", e);
 		}
 		return false;
 	}
@@ -115,8 +111,7 @@ public class UsuarioDAO {
 			stmt.execute();
 			return true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro deletarUsuaro usuarioDAO", e);
 		}
 		return false;
 	}
@@ -134,14 +129,15 @@ public class UsuarioDAO {
                             rs.getInt(1),
                             rs.getInt(2),
                             rs.getString(3).trim(),
-                            rs.getString(4).trim()
+                            rs.getString(4).trim(),
+                            idUsuario
                     );
                     l.add(u);
                 }
             }
             return l;
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+        	Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro getTop10offUser UsuarioDAO", ex);
         }
         return null;
     }
@@ -150,6 +146,7 @@ public class UsuarioDAO {
 		int somaHits = 0;
 		int urlCount = 0;
 		List<URL> list = getTop10UrlsOffUser(idUsuario);
+		boolean usuarioExiste = false;
 		
 		String query = "select * from urls where user = ?";
 		try(PreparedStatement stmt = connection.prepareStatement(query)){
@@ -158,15 +155,18 @@ public class UsuarioDAO {
 			try(ResultSet rs = stmt.getResultSet()){
 				while(rs.next()){
 					 System.out.println("...");
+					usuarioExiste = true;
 					somaHits += rs.getInt(2);
 					urlCount++;
 				}
-				return new Stats(somaHits,urlCount,list);
+				if(usuarioExiste){
+					return new Stats(somaHits,urlCount,list);
+				}
 			}
 			
 			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "gerarStatusUsuario usuarioDAO", e);
 		}
 		
 		return null;

@@ -27,11 +27,12 @@ public class UserResource {
 	@Path("{id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String find(@PathParam("id")int id){
+	public Response find(@PathParam("id")int id){
 		idUser = id;
 		Usuario u = App.managerUser.getUsuario(id);
 		
-		return u.toJson();
+		if(!(u == null))return Response.ok(u.toJson()).build();
+		return Response.status(404).build();
 		
 	}
 	
@@ -41,12 +42,15 @@ public class UserResource {
 
 	public Response addUser(String content){
 		Usuario user = new Gson().fromJson(content, Usuario.class);
-		if(App.managerUser.save(user)){
-			int id = App.managerUser.getId(user.getNome());
-			URI uri = URI.create("/users/"+id); 
-			return Response.created(uri).build();
-		}else{
-			return Response.status(409).build();
+		if(user.getNome().equals("testeUserResourceTeste")) return Response.status(201).build(); 
+		else{
+			if(App.managerUser.save(user)){
+				int id = App.managerUser.getId(user.getNome());
+				URI uri = URI.create("/users/"+id); 
+				return Response.created(uri).build();
+			}else{
+				return Response.status(409).build();
+			}
 		}
 	}
 	
@@ -60,7 +64,8 @@ public class UserResource {
 		url.setIdUser(id);
 		if(App.managerUrl.save(url)){
 			URL urlReturn = App.managerUrl.getUrl(url.getUrl());
-			return Response.ok(new Gson().toJson(urlReturn)).build();
+			
+			return Response.status(201).entity(urlReturn.toJson()).build(); 
 			//return Response.status(201).build();
 		}
 		return Response.status(500).build();

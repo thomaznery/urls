@@ -17,8 +17,8 @@ public class StatsResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getStats(){
+		System.out.println("Dentro do stats");
 		Stats stats = App.managerUrl.gerarStats();
-		System.out.println("dentro do StatsResource");
 		if(!(stats == null)){
 			return Response.ok(stats.toJson()).build();
 		}else{
@@ -27,7 +27,6 @@ public class StatsResource {
 		
 	}
 	
-	//OK
 	//curl -v http://localhost:8080/stats/1
 	@Path("{id}")
 	@GET

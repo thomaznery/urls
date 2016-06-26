@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 
 import br.com.urls.modelos.Stats;
 import br.com.urls.modelos.URL;
-import br.com.urls.modelos.Usuario;
 import br.com.urls.util.App;
 
 
@@ -33,7 +32,7 @@ public class UrlDAO {
         try(PreparedStatement stmt = connection.prepareStatement(query)){
             stmt.execute();
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro ao criar database", ex);
         }
     }
     public void createTableUrl(){
@@ -49,24 +48,25 @@ public class UrlDAO {
         try(PreparedStatement stmt = connection.prepareStatement(query) ){
             stmt.execute();
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro ao criar tabela Urls.", ex);
         }
     }
-    public boolean save(URL url) throws SQLException {
+    public boolean save(URL url){
         String query = "insert into urls(longUrl,user) values(?,?)";
         if(!(ifUrlExist(url))){
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, url.getUrl());
-            stmt.setInt(2, url.getIdUser());
-            stmt.execute();
-            
-            //até o momento  do execute não temos o valor do id,
-            //sendo assim, podemos deduzir o shorUtrl em uma segunda conexao
-            atualizarShortUrl(url.getUrl());
-            return true;
-
+	        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+	            stmt.setString(1, url.getUrl());
+	            stmt.setInt(2, url.getIdUser());
+	            stmt.execute();
+	            
+	            //até o momento  do execute não temos o valor do id,
+	            //sendo assim, podemos deduzir o shorUtrl em uma segunda conexao
+	            atualizarShortUrl(url.getUrl());
+	            return true;
+	        } catch (SQLException e) {
+	        	Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro ao salvar Url no banco", e);
+			}
         }
-       }
         addOneHist(App.managerUrl.getId(url.getUrl()));
         return false;
         
@@ -79,7 +79,7 @@ public class UrlDAO {
             stmt.setInt(1, id);
             stmt.execute();
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no addOndeHits(int id)", ex);
         }
     
     }
@@ -102,7 +102,7 @@ public class UrlDAO {
             return l;
             
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getList()", ex);
         }
     return null;
     }
@@ -128,7 +128,7 @@ public class UrlDAO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getUrl(int idval)", ex);
         }
         
         
@@ -148,7 +148,7 @@ public class UrlDAO {
 
             }
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "ifExistUrl(Url url)", ex);
         }
         return false;
     }
@@ -167,7 +167,7 @@ public class UrlDAO {
             }
 
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE,"Erro no get If(String id)", ex);
         }
 
         return -1;
@@ -175,19 +175,16 @@ public class UrlDAO {
 
     public void atualizarShortUrl(String urlLong) {
         URL url = new URL(urlLong);
-        url.setId(getId(urlLong));//atualiza a id com a conculta
-        //feita no banco utilizando o urlLong
-        
-        url.setShortUrl();//adita banco com um shortUrl 
+        url.setId(getId(urlLong));
+        url.setShortUrl(); 
         String query = "update urls set shortUrl = ? where longUrl = ?";
-        
         try(PreparedStatement stmt= connection.prepareStatement(query)){
             stmt.setString(1, url.getShortUrl().trim());
             stmt.setString(2, url.getUrl().trim());
             stmt.execute();
             
         } catch (SQLException ex) {
-            ex.printStackTrace();
+        	Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no atualizar shorUrl", ex);
         }
     }
 
@@ -207,31 +204,28 @@ public class UrlDAO {
                     );
                     l.add(u);
                 }
+                return l;
             }
-            return l;
         } catch (SQLException ex) {
-            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getTop10Urls", ex);
         }
         return null;
     }
     
     public boolean deleteUrl(int id){
     	String query = "delete from urls where id = ?";
-    	
     	try(PreparedStatement stmt = connection.prepareStatement(query)){
     		stmt.setInt(1, id);
-    		
+    		stmt.execute();
     		return true;
     	} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    		Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no deleteUrl", e);
 		}
     	return false;
     }
 
     public URL getUrl(String longurl){
     	String query = "select * from urls where longUrl = ?";
-    	
     	try(PreparedStatement stmt= connection.prepareStatement(query)){
     		stmt.setString(1, longurl);
     		stmt.execute();
@@ -244,10 +238,8 @@ public class UrlDAO {
     				return new URL(id,hits,url,shorUrl);
     			}
     		}
-    		
     	} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+    		Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no getUrls(String urlLong)", e);
 		}
     	return null;
     }
@@ -265,6 +257,7 @@ public class UrlDAO {
     	String query = "select * from urls";
     	int cont=0;
     	  try(PreparedStatement stmt= connection.prepareStatement(query)){
+    		
               stmt.executeQuery();
             
               try(ResultSet rs = stmt.getResultSet()){
@@ -274,7 +267,7 @@ public class UrlDAO {
               }
               
           } catch (SQLException ex) {
-              Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, null, ex);
+              Logger.getLogger(UrlDAO.class.getName()).log(Level.SEVERE, "Erro no counttUrls. classe UrlDAo", ex);
           }
     	return cont;
     }
@@ -282,21 +275,15 @@ public class UrlDAO {
     public Stats gerarStats(){
     	int totalHits = 0;
     	int urlCount = 0;
+    	
     	List<URL> topUrls = getTop10Urls();
-    	System.out.println("dentro do urlDAO in gerarStats()");
-    	String query = "select * from urls";
-    	try(PreparedStatement stmt = connection.prepareStatement(query)){
-    		stmt.executeQuery();
-    		try(ResultSet rs = stmt.getResultSet()){
-    			while(rs.next()){
-    				totalHits += rs.getInt(2);
-    				urlCount++;
-    			}
-    			
-    		}
-    	} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	return new Stats(totalHits,urlCount, topUrls);
+    	List<URL> allUrls = getList();
+
+    	for(URL u : allUrls){
+    		totalHits += u.getHits();
+    		urlCount++;
+    	}
+    	if(urlCount > 0) return new Stats(totalHits,urlCount ,topUrls);
+    	return null;
     }
 }
